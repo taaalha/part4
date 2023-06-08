@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('./../models/blogs')
+const logger = require('../utils/logger')
 
 //Route 1
 blogsRouter.get('/', (request, response) => {
@@ -11,16 +12,26 @@ blogsRouter.get('/', (request, response) => {
 })
  
 //Route 2
-blogsRouter.post('/', (request, response) => {
-const blog = new Blog(request.body)
-logger.info("blog content is",blog)
+blogsRouter.post('/', async (request, response) => {
+  const body = request.body
 
-blog
-    .save()
-    .then(result => {
-    response.status(201).json(result)
-    
-    })
+  const blog = new Blog(
+    {
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0
+    }
+  )
+  try {
+    const savedBlog = await blog.save()
+    response.status(201).json(savedBlog)
+  }
+  catch {
+    return response.status(400).json({ error: 'Title or URL is missing' });
+    logger.error(savedBlog)
+  }
+
 })
 
 
