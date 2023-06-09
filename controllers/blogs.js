@@ -34,6 +34,32 @@ blogsRouter.post('/', async (request, response) => {
 
 })
 
+//Route 3
+blogsRouter.delete('/:id', async (request, response) => {
+  const blog = await Blog.findByIdAndRemove(request.params.id)
+  if (blog) {
+    response.status(204).end()
+  }
+})
 
+
+
+//Route 4
+blogsRouter.put('/:id', async (request, response) => {
+  const body = request.body
+
+  const blog = {
+    title   :  body.title,
+    author  :  body.author,
+    url     :  body.url,
+    likes   :  body.likes
+  }
+
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  if (updatedBlog) {
+    response.status(204).end()
+  }
+
+})
 //export module
 module.exports = blogsRouter

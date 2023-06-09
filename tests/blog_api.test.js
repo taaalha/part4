@@ -93,6 +93,44 @@ test('Bad request if title or url is missing', async() => {
 })
 
 
+test('Check if a blog can be deleted', async () => {
+    const blogsAtStart = await helper.blogsinDB()
+    const blogsToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogsToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsinDB()
+
+    expect(blogsAtEnd).toHaveLength(
+      sampleBlogs.length - 1
+    )
+
+    const title = blogsAtEnd.map(t => t.title)
+
+    expect(title).not.toContain(blogsToDelete.title)
+})
+
+test('Updating individual blog posts works', async () => {
+    const blogsAtStart = await helper.blogsinDB()
+    const blogsToUpdate = blogsAtStart[1]
+    const updatedBlog = {...blogsToUpdate, likes : 375284}
+    console.log("updatedBlog is", updatedBlog)
+
+    await api
+    .put(`/api/blogs/${updatedBlog.id}`)
+    .send(updatedBlog)
+    .expect(204)
+
+    const blogsAtEnd = await helper.blogsinDB()
+    const likes = blogsAtEnd.map(l => l.likes)
+
+    expect(likes[1]).toBe(updatedBlog.likes)
+
+
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })

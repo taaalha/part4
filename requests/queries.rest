@@ -8,3 +8,22 @@ Content-Type : application/json
   "url": "some url here",
   "likes": 300
 }
+
+###
+GET http://localhost:3002/api/blogs HTTP/1.1
+Content-Type : application/json
+
+###
+DELETE http://localhost:3002/api/blogs/6467aebdf71dbda56e12f7e0 HTTP/1.1
+
+
+###
+PUT http://localhost:3002/api/blogs/64838a49f5a058d3e9f362fb
+Content-Type : application/json
+
+{
+  "title": "Title 509876",
+  "author": "Talha",
+  "url": "some url here",
+  "likes": 30000
+}
