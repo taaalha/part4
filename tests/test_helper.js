@@ -5,4 +5,14 @@ const blogsinDB =  async () => {
     return blogs.map(blog => blog.toJSON())   
 }
 
-module.exports = {blogsinDB}
+const usersInDb = async () => {
+    const users = await User.find({})
+    return users.map(u => u.toJSON())
+}
+
+
+
+module.exports = {
+    blogsinDB,
+    usersInDb
+}
