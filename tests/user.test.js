@@ -6,22 +6,15 @@ const helper = require('./test_helper')
 
 
 describe('when there is initially one user in db', () => {
-    
     //beforeEach block
     beforeEach(async () => {
       await User.deleteMany({})
   
-      const passwordHash = await bcrypt.hash('secret', 10)
-      const user = new User(
-        { 
-        username: 'root', 
-        passwordHash 
-        }
-        )
-
+      const passwordHash = await bcrypt.hash('sekret', 10)
+      const user = new User({ username: 'root', passwordHash })
+  
       await user.save()
     })
-  
     // Test 1
     test('creation succeeds with a fresh username', async () => {
       const usersAtStart = await helper.usersInDb()
@@ -68,6 +61,7 @@ describe('when there is initially one user in db', () => {
       })
 })
 
-test('Only unique username is allowed', async() => {
-    
+
+afterAll(async () => {
+  await mongoose.connection.close()
 })
