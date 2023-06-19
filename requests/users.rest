@@ -7,7 +7,7 @@ POST http://localhost:3002/api/users/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "username": "esf",
+    "username": "new user 19 07",
     "name": "asfdsfvsdfsd",
     "password": "sddf"
 }
