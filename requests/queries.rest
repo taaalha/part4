@@ -1,10 +1,11 @@
 ###
 POST http://localhost:3002/api/blogs HTTP/1.1
 Content-Type : application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QgdXNlciAyIiwiaWQiOiI2NDk0YWRlZDVkYjRkMDdmN2NmNDdkNjQiLCJpYXQiOjE2ODc0NjYzMjN9.BlehdFVI5AoG9NYWHCLu1AQZp1zeAmp0jPsXCj5Cdcg
 
 {
-  "title": "Title-19-06-20:39",
-  "author": "Talha",
+  "title": "posted by test user 2",
+  "author": "Title-22-06-20:39",
   "url": "some url here",
   "likes": 300
   //"userId": "6488c373b3298fc2a35a3161" 
