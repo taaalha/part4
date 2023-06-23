@@ -3,16 +3,32 @@ const supertest = require('supertest')
 const app = require('../app')
 const sampleBlogs = require('../utils/sample_blogs')
 const Blog = require('../models/blogs')
+const User = require('../models/user')
 const helper = require('./test_helper')
+const bcrypt = require('bcrypt')
+api = supertest(app)
 
-
-
-const api = supertest(app)
+const login = async () => {
+    const api = supertest(app)
+    // Login and retrieve the token
+    const loginResponse = await api
+    .post('/api/login')
+    .send({ username: 'root', password: 'secret' });
+    
+    token = loginResponse.body.token
+    token = `Bearer ${token}`
+    console.log("token in test is", token)
+}
 
 beforeEach(async () => {
     await Blog.deleteMany({})
-
+    await User.deleteMany({})
+    
     await Blog.insertMany(sampleBlogs)
+    const passwordHash = await bcrypt.hash('secret', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    await user.save()
 
 })
 
@@ -38,6 +54,9 @@ test('unique identifier is named id', async () => {
 })
 
 test('HTTP Post successfully creates a new blog post',async () => {
+
+    await login()
+
     const newBlog = {
         title: "Test blog",
         author: "Talha K",
@@ -46,6 +65,7 @@ test('HTTP Post successfully creates a new blog post',async () => {
     }
     await api
     .post('/api/blogs')
+    .set('Authorization', token)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -57,6 +77,31 @@ test('HTTP Post successfully creates a new blog post',async () => {
     expect(contents).toContain(
       'Test blog'
     )
+
+})
+
+test('HTTP Post fails with status code 401 Unauthorized if no token is provided',async () => {
+
+    const newBlog = {
+        title: "Test blog",
+        author: "Talha K",
+        url: "https://IamAwesome.com/",
+        likes: 100
+    }
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
+
+    const blogs = await helper.blogsinDB()
+    expect(blogs).toHaveLength(sampleBlogs.length)
+
+    const contents = blogs.map(b => b.title)
+    expect(contents).not.toContain(
+      'Test blog'
+    )
+
 })
 
 test('likes property missing, then default to 0 likes', async () => {
@@ -97,8 +142,10 @@ test('Check if a blog can be deleted', async () => {
     const blogsAtStart = await helper.blogsinDB()
     const blogsToDelete = blogsAtStart[0]
 
+    await login()
     await api
       .delete(`/api/blogs/${blogsToDelete.id}`)
+      .set('Authorization', token)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsinDB()

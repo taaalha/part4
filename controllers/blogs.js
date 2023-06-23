@@ -5,13 +5,6 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const { userExtractor } = require('../utils/middelware')
 
-const getTokenFrom = request => {  
-  const authorization = request.get('authorization')  
-  if (authorization && authorization.startsWith('Bearer ')) {    
-    return authorization.replace('Bearer ', '')  
-  }  
-  return null
-}
 
 //Route 1
 blogsRouter.get('/', async (request, response) => {
@@ -23,9 +16,16 @@ blogsRouter.get('/', async (request, response) => {
  
 //Route 2
 blogsRouter.post('/',userExtractor, async (request, response) => {
+  const authorizationHeader = request.headers.authorization
+  if (!authorizationHeader){
+    response.status(401).json({ error: 'No token provided' })
+  }
   const body = request.body
-
+  logger.info("blogsRouter request.body is", body)
   const user = request.user
+  logger.info("blogsRouter request.user is", user.id)
+
+
 
   const blog = new Blog(
     {

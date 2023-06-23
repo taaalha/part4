@@ -36,17 +36,24 @@ const errorHandler = (error, request, response, next) => {
 
 const tokenExtractor = (request, response, next) => {
   const authorizationHeader = request.headers.authorization;
-
+  console.log("auth header in token extractor is", authorizationHeader)
+/*   if (authorizationHeader == null){
+    response.status(401).json({ error: 'No token provided' })
+  } */
+  
   if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
     const token = authorizationHeader.substring(7); // Remove "Bearer " from the beginning
     request.token = token;
-  }
-
+    logger.info('tokenExtractor final result is', request.token)
+  } 
+/*     else {
+      response.status(401).json({ error: 'No token provided' });
+    } */
   next()
 }
 
 const userExtractor = async (request, response, next) => {
-  
+
     const decodedToken = jwt.verify(request.token, process.env.SECRET)  
     if (!decodedToken.id) {    
       return response.status(401).json({ error: 'token invalid' })  
@@ -54,6 +61,7 @@ const userExtractor = async (request, response, next) => {
     const user = await User.findById(decodedToken.id)
 
     request.user = user
+    logger.info("userExtractor request.user is", request.user)
     next()
 
 }

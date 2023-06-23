@@ -11,6 +11,18 @@ const middleware = require('./utils/middelware')
 mongoose.connect(config.mongoUrl)
 logger.info('Connecting to',config.mongoUrl)
 
+mongoose.connection.on('connected', () => {
+    logger.info('Connected to MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+    logger.info('Error connecting to MongoDB:', err);
+});
+  
+mongoose.connection.on('disconnected', () => {
+    logger.info('Disconnected from MongoDB');
+});
+
 app.use(cors())
 app.use(express.json())
 
