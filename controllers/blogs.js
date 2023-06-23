@@ -3,6 +3,7 @@ const Blog = require('./../models/blogs')
 const logger = require('../utils/logger')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middelware')
 
 const getTokenFrom = request => {  
   const authorization = request.get('authorization')  
@@ -21,14 +22,10 @@ blogsRouter.get('/', async (request, response) => {
 })
  
 //Route 2
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/',userExtractor, async (request, response) => {
   const body = request.body
-  
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)  
-  if (!decodedToken.id) {    
-    return response.status(401).json({ error: 'token invalid' })  
-  }  
-  const user = await User.findById(decodedToken.id)
+
+  const user = request.user
 
   const blog = new Blog(
     {
@@ -53,7 +50,7 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 //Route 3
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', userExtractor ,async (request, response) => {
   const blogID = request.params.id
 
   const blog = await Blog.findById(blogID)
@@ -62,13 +59,8 @@ blogsRouter.delete('/:id', async (request, response) => {
   }
   console.log("blog is ", blog )
 
-  const BlogDecodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log("blog decoded token is", BlogDecodedToken)
-  if (!BlogDecodedToken.id) {    
-    return response.status(401).json({ error: 'token invalid' })  
-  }
-
-  const UserId = BlogDecodedToken.id
+  const UserId = request.user.id
+  console.log("userID is", UserId)
 
   if (blog.user.toString() !== UserId.toString()) {
     return response.status(403).json({ error: 'Unauthorized access' });
@@ -76,19 +68,8 @@ blogsRouter.delete('/:id', async (request, response) => {
   else {
     await Blog.findByIdAndRemove(blogID)
     response.status(204).end()
-    //response.status(204).end()
   }
  
-
-
-
-
-  //const user = await User.findById(decodedToken.id)
-
-/*   const blog = await Blog.findByIdAndRemove(request.params.id)
-  if (blog) {
-    response.status(204).end()
-  } */
 })
 
 
